@@ -56,6 +56,7 @@ public:
     Return<int32_t> getHbmOffDelay() override;
     Return<int32_t> getHbmOnDelay() override;
     Return<bool> supportsAlwaysOnHBM() override;
+    Return<bool> noDim() override;
 
 private:
     sp<IXiaomiFingerprint> xiaomiFingerprintService;
