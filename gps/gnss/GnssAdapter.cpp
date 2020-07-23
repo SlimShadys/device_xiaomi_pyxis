@@ -3833,6 +3833,10 @@ GnssAdapter::reportNmea(const char* nmea, size_t length)
             it->second.gnssNmeaCb(nmeaNotification);
         }
     }
+
+    if (isNMEAPrintEnabled()) {
+        LOC_LOGd("[%" PRId64 ", %zu] %s", now, length, nmea);
+    }
 }
 
 void
