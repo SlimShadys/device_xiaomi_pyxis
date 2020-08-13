@@ -5,8 +5,9 @@
 #
 
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/lineage_pyxis.mk
+    $(LOCAL_DIR)/rr_pyxis.mk
 
 COMMON_LUNCH_CHOICES := \
-    lineage_pyxis-userdebug \
-    lineage_pyxis-user
+    rr_pyxis-userdebug \
+    rr_pyxis-user \
+    rr_pyxis-eng

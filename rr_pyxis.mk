@@ -5,14 +5,17 @@
 #
 
 # Inherit some common LineageOS stuff.
-$(call inherit-product, vendor/lineage/config/common_full_phone.mk)
+$(call inherit-product, vendor/rr/config/common_full_phone.mk)
 
 # Inherit from pyxis device.
 $(call inherit-product, $(LOCAL_PATH)/device.mk)
 
+# FaceUnlock
+TARGET_FACE_UNLOCK_SUPPORTED := true
+
 # Device identifier. This must come after all inclusions.
 PRODUCT_DEVICE := pyxis
-PRODUCT_NAME := lineage_pyxis
+PRODUCT_NAME := rr_pyxis
 PRODUCT_BRAND := Xiaomi
 PRODUCT_MANUFACTURER := Xiaomi
 
