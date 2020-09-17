@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -25,57 +24,31 @@
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
  * OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
-#define LOG_TAG "android.hardware.power@1.2-service.xiaomi_pyxis"
+#define ATTRIBUTE_VALUE_DELIM ('=')
+#define ATTRIBUTE_STRING_DELIM (";")
 
-#include <android/log.h>
-#include <hidl/HidlTransportSupport.h>
-#include <hardware/power.h>
-#include "Power.h"
+#define METADATA_PARSING_ERR (-1)
+#define METADATA_PARSING_CONTINUE (0)
+#define METADATA_PARSING_DONE (1)
 
-using android::sp;
-using android::status_t;
-using android::OK;
+#define MIN(x, y) (((x) > (y)) ? (y) : (x))
 
-// libhwbinder:
-using android::hardware::configureRpcThreadpool;
-using android::hardware::joinRpcThreadpool;
+struct video_encode_metadata_t {
+    int hint_id;
+    int state;
+};
 
-// Generated HIDL files
-using android::hardware::power::V1_2::IPower;
-using android::hardware::power::V1_2::implementation::Power;
+struct video_decode_metadata_t {
+    int hint_id;
+    int state;
+};
 
-int main() {
-
-    status_t status;
-    android::sp<IPower> service = nullptr;
-
-    ALOGI("Power HAL Service 1.2 is starting.");
-
-    service = new Power();
-    if (service == nullptr) {
-        ALOGE("Can not create an instance of Power HAL interface.");
-
-        goto shutdown;
-    }
-
-    configureRpcThreadpool(1, true /*callerWillJoin*/);
-
-    status = service->registerAsService();
-    if (status != OK) {
-        ALOGE("Could not register service for Power HAL(%d).", status);
-        goto shutdown;
-    }
-
-    ALOGI("Power Service is ready");
-    joinRpcThreadpool();
-    //Should not pass this line
-
-shutdown:
-    // In normal operation, we don't expect the thread pool to exit
-
-    ALOGE("Power Service is shutting down");
-    return 1;
-}
-
+int parse_metadata(char* metadata, char** metadata_saveptr, char* attribute,
+                   unsigned int attribute_size, char* value, unsigned int value_size);
+int parse_video_encode_metadata(char* metadata,
+                                struct video_encode_metadata_t* video_encode_metadata);
+int parse_video_decode_metadata(char* metadata,
+                                struct video_decode_metadata_t* video_decode_metadata);

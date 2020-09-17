@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2019, The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012, The Linux Foundation. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- *     * Redistributions of source code must retain the above copyright
+ * *    * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
  *     * Redistributions in binary form must reproduce the above
  *       copyright notice, this list of conditions and the following
@@ -27,55 +27,20 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#define LOG_TAG "android.hardware.power@1.2-service.xiaomi_pyxis"
+#include <utils/Log.h>
 
-#include <android/log.h>
-#include <hidl/HidlTransportSupport.h>
-#include <hardware/power.h>
-#include "Power.h"
+#include "hint-data.h"
 
-using android::sp;
-using android::status_t;
-using android::OK;
-
-// libhwbinder:
-using android::hardware::configureRpcThreadpool;
-using android::hardware::joinRpcThreadpool;
-
-// Generated HIDL files
-using android::hardware::power::V1_2::IPower;
-using android::hardware::power::V1_2::implementation::Power;
-
-int main() {
-
-    status_t status;
-    android::sp<IPower> service = nullptr;
-
-    ALOGI("Power HAL Service 1.2 is starting.");
-
-    service = new Power();
-    if (service == nullptr) {
-        ALOGE("Can not create an instance of Power HAL interface.");
-
-        goto shutdown;
+int hint_compare(struct hint_data* first_hint, struct hint_data* other_hint) {
+    if (first_hint == other_hint) {
+        return 0;
+    } else if ((first_hint && other_hint) && (first_hint->hint_id == other_hint->hint_id)) {
+        return 0;
+    } else {
+        return 1;
     }
-
-    configureRpcThreadpool(1, true /*callerWillJoin*/);
-
-    status = service->registerAsService();
-    if (status != OK) {
-        ALOGE("Could not register service for Power HAL(%d).", status);
-        goto shutdown;
-    }
-
-    ALOGI("Power Service is ready");
-    joinRpcThreadpool();
-    //Should not pass this line
-
-shutdown:
-    // In normal operation, we don't expect the thread pool to exit
-
-    ALOGE("Power Service is shutting down");
-    return 1;
 }
 
+void hint_dump(struct hint_data* hint) {
+    ALOGI("hint_id: %lu", hint->hint_id);
+}
