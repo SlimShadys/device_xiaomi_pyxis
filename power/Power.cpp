@@ -20,6 +20,7 @@
 
 #include "Power.h"
 
+constexpr static char const* inputDevicesDirectory = "/dev/input/";
 constexpr static int wakeupModeOn = 5;
 constexpr static int wakeupModeOff = 4;
 
@@ -39,36 +40,41 @@ Return<void> Power::powerHint(PowerHint_1_0, int32_t) {
 }
 
 int open_ts_input() {
-    int fd = -1;
-    DIR *dir = opendir("/dev/input");
+    DIR *dir = opendir(inputDevicesDirectory);
+    if (dir == NULL) {
+        return -1;
+    }
 
-    if (dir != NULL) {
-        struct dirent *ent;
+    struct dirent *ent;
+    int fd;
+    int rc;
 
-        while ((ent = readdir(dir)) != NULL) {
-            if (ent->d_type == DT_CHR) {
-                char absolute_path[PATH_MAX] = {0};
-                char name[80] = {0};
+    while ((ent = readdir(dir)) != NULL) {
+        if (ent->d_type != DT_CHR)
+            continue;
 
-                strcpy(absolute_path, "/dev/input/");
-                strcat(absolute_path, ent->d_name);
+        char absolute_path[PATH_MAX] = {0};
+        char name[80] = {0};
 
-                fd = open(absolute_path, O_RDWR);
-                if (ioctl(fd, EVIOCGNAME(sizeof(name) - 1), &name) > 0) {
-                    if (strcmp(name, "atmel_mxt_ts") == 0 || strcmp(name, "fts_ts") == 0 ||
+        strcpy(absolute_path, inputDevicesDirectory);
+        strcat(absolute_path, ent->d_name);
+
+        fd = open(absolute_path, O_RDWR);
+        if (fd < 0)
+            continue;
+
+        rc = ioctl(fd, EVIOCGNAME(sizeof(name) - 1), &name);
+        if (rc > 0 && (strcmp(name, "atmel_mxt_ts") == 0 || strcmp(name, "fts_ts") == 0 ||
                             strcmp(name, "fts") == 0 || strcmp(name, "ft5x46") == 0 ||
                             strcmp(name, "synaptics_dsx") == 0 ||
                             strcmp(name, "NVTCapacitiveTouchScreen") == 0)
-                        break;
-                }
+            break;
 
-                close(fd);
-                fd = -1;
-            }
-        }
-
-        closedir(dir);
+        close(fd);
+        fd = -1;
     }
+
+    closedir(dir);
 
     return fd;
 }
